@@ -204,8 +204,9 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     is_overflow = False
     # ================ MAIN TRAINNIG LOOP! ===================
     for epoch in range(epoch_offset, hparams.epochs):
-        print("Epoch: {} Iteration: {}".format(epoch, iteration))
+        print("Epoch: {}".format(epoch))
         for i, batch in enumerate(train_loader):
+            print("Iteration: {}".format(iteration))
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
                 param_group['lr'] = learning_rate
