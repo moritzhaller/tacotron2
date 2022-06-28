@@ -91,7 +91,6 @@ def english_cleaners(text):
 
 def german_cleaners(text):
   '''Pipeline for German text, including number and abbreviation expansion.'''
-  print('german clean', text)
   text = convert_to_ascii(text)
   text = lowercase(text)
   text = expand_numbers(text)
