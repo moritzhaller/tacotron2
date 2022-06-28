@@ -93,7 +93,5 @@ def german_cleaners(text):
   '''Pipeline for German text, including number and abbreviation expansion.'''
   text = convert_to_ascii(text)
   text = lowercase(text)
-  text = expand_numbers(text)
-  text = expand_abbreviations(text)
   text = collapse_whitespace(text)
   return text
