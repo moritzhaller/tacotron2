@@ -235,6 +235,8 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     for epoch in range(epoch_offset, hparams.epochs):
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
+
+            learning_rate = scheduler.get_last_lr()
             for param_group in optimizer.param_groups:
                 param_group['lr'] = learning_rate
 
@@ -265,8 +267,8 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             if not is_overflow and rank == 0:
                 duration = time.perf_counter() - start
-                print("Epoch {} Iteration {} Train loss {:.6f} Duration {:.2f}s/it".format(
-                    epoch, iteration, reduced_loss, duration))
+                print("Epoch {} Iteration {} Learning Rate {} Train loss {:.6f} Duration {:.2f}s/it".format(
+                    epoch, iteration, learning_rate, reduced_loss, duration))
                 logger.log_training(
                     reduced_loss, grad_norm, learning_rate, duration, iteration)
 
