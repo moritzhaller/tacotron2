@@ -109,12 +109,36 @@ def load_checkpoint(checkpoint_path, model, optimizer):
     return model, optimizer, learning_rate, iteration
 
 
+def load_amp_checkpoint(checkpoint_path, model, optimizer, amp):
+    assert os.path.isfile(checkpoint_path)
+    print("Loading amp checkpoint '{}'".format(checkpoint_path))
+    checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    model.load_state_dict(checkpoint_dict['state_dict'])
+    optimizer.load_state_dict(checkpoint_dict['optimizer'])
+    amp.load_state_dict(checkpoint_dict['amp'])
+    learning_rate = checkpoint_dict['learning_rate']
+    iteration = checkpoint_dict['iteration']
+    print("Loaded amp checkpoint '{}' from iteration {}" .format(
+        checkpoint_path, iteration))
+    return model, optimizer, amp, learning_rate, iteration
+
+
 def save_checkpoint(model, optimizer, learning_rate, iteration, filepath):
     print("Saving model and optimizer state at iteration {} to {}".format(
         iteration, filepath))
     torch.save({'iteration': iteration,
                 'state_dict': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
+                'learning_rate': learning_rate}, filepath)
+
+
+def save_amp_checkpoint(model, optimizer, amp, learning_rate, iteration, filepath):
+    print("Saving amp model and optimizer state at iteration {} to {}".format(
+        iteration, filepath))
+    torch.save({'iteration': iteration,
+                'state_dict': model.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'amp': amp.state_dict(),
                 'learning_rate': learning_rate}, filepath)
 
 
@@ -169,6 +193,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     learning_rate = hparams.learning_rate
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                                  weight_decay=hparams.weight_decay)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=hparams.gamma)
 
     if hparams.fp16_run:
         from apex import amp
@@ -193,8 +218,13 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
             model = warm_start_model(
                 checkpoint_path, model, hparams.ignore_layers)
         else:
-            model, optimizer, _learning_rate, iteration = load_checkpoint(
-                checkpoint_path, model, optimizer)
+            if hparams.fp16_run:
+                model, optimizer, amp,  _learning_rate, iteration = load_amp_checkpoint(
+                    checkpoint_path, model, optimizer, amp)
+            else:
+                model, optimizer, _learning_rate, iteration = load_checkpoint(
+                    checkpoint_path, model, optimizer)
+
             if hparams.use_saved_learning_rate:
                 learning_rate = _learning_rate
             iteration += 1  # next iteration is iteration + 1
@@ -250,10 +280,16 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 if rank == 0:
                     checkpoint_path = os.path.join(
                         output_directory, "checkpoint_{}".format(iteration))
-                    save_checkpoint(model, optimizer, learning_rate, iteration,
-                                    checkpoint_path)
+                    if hparams.fp16_run:
+                        save_amp_checkpoint(model, optimizer, amp, learning_rate,
+                                            iteration, checkpoint_path)
+                    else:
+                        save_checkpoint(model, optimizer, learning_rate,
+                                        iteration, checkpoint_path)
 
             iteration += 1
+
+        scheduler.step()
 
 
 if __name__ == '__main__':
