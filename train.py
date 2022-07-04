@@ -15,6 +15,7 @@ from data_utils import TextMelLoader, TextMelCollate
 from loss_function import Tacotron2Loss
 from logger import Tacotron2Logger
 from hparams import create_hparams
+from demo import infer
 
 
 def reduce_tensor(tensor, n_gpus):
@@ -287,7 +288,12 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                         save_checkpoint(model, optimizer, learning_rate,
                                         iteration, checkpoint_path)
 
-                    demo()
+                    tacotraon2_path = checkpoint_path
+                    waveglow_path = 'waveglow_checkpoints/waveglow_256channels_ljs_v3.pt'
+                    audio_dir = 'demos_dir'
+                    audio_path = os.path.join(audio_dir, "{}.wav".format(iteration))
+                    text = "Natürlich messe ich dem Lesen eine sehr, sehr große Bedeutung bei!"
+                    _ = infer(tacotraon2_path, waveglow_path, text, audio_path)
 
             iteration += 1
 

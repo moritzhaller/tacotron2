@@ -23,14 +23,12 @@ def plot_data(data, figsize=(16, 4)):
     plt.show()
 
 
-def save_audio(out_dir, file_name, sampling_rate, audio):
-    audio_path = os.path.join(out_dir, "{}_synthesis.wav".format(file_name))
-    print("saving audio to", audio_path)
+def save_audio(path, sampling_rate, audio):
+    print("saving audio to", path)
     write(audio_path, sampling_rate, audio.astype(np.float32))
 
 
 def load_tacotron2(path, hparams):
-    print("load tacotron from", path)
     model = load_model(hparams)
     model.load_state_dict(torch.load(path)['state_dict'])
     model.cuda().eval().half()
@@ -39,7 +37,6 @@ def load_tacotron2(path, hparams):
 
 
 def load_waveglow(path):
-    print("load waveglow from", path)
     waveglow = torch.load(path)['model']
     waveglow.cuda().eval().half()
     for k in waveglow.convinv:
@@ -49,7 +46,7 @@ def load_waveglow(path):
     return waveglow, denoiser
 
 
-def infer(tacotron2_path, waveglow_path, text, save=False):
+def infer(tacotron2_path, waveglow_path, text, audio_path):
     hparams = create_hparams()
     hparams.max_wav_value=32768.0
     hparams.sampling_rate = 22050
@@ -64,11 +61,9 @@ def infer(tacotron2_path, waveglow_path, text, save=False):
         torch.from_numpy(sequence)).cuda().long()
 
     # text -> mel spectogram
-    print("synthesizing", text)
     mel_outputs, mel_outputs_postnet, _, alignments = tacotron2.inference(sequence)
 
     # mel spectogram -> sound wave
-    print("generating audio", text)
     with torch.no_grad():
         audio = waveglow.infer(mel_outputs_postnet, sigma=0.85)
 
@@ -77,7 +72,7 @@ def infer(tacotron2_path, waveglow_path, text, save=False):
     
     audio_denoised_np = audio_denoised.cpu().numpy()    
     
-    if save:
-        save_audio('foo', 'bar', hparams.sampling_rate, audio_denoised_np)
+    if audio_path:
+        save_audio(audio_path, hparams.sampling_rate, audio_denoised_np)
 
     return audio_denoised_np
