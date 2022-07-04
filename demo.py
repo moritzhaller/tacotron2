@@ -12,6 +12,9 @@ from layers import TacotronSTFT, STFT
 from audio_processing import griffin_lim
 # from train import load_model
 from text import text_to_sequence
+
+import sys
+sys.path.append('waveglow/')
 from denoiser import Denoiser
 
 
