@@ -293,7 +293,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                     audio_dir = 'demos_dir'
                     audio_path = os.path.join(audio_dir, "{}.wav".format(iteration))
                     text = "Natürlich messe ich dem Lesen eine sehr, sehr große Bedeutung bei!"
-                    _ = infer(tacotraon2_path, waveglow_path, text, audio_path)
+                    _ = infer(model, waveglow_path, text, audio_path)
 
             iteration += 1
 

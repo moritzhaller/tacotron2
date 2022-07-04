@@ -1,4 +1,4 @@
-import matplotlib
+# import matplotlib
 import matplotlib.pylab as plt
 
 import numpy as np
@@ -7,14 +7,13 @@ from scipy.io.wavfile import write
 import os
 
 from hparams import create_hparams
-from model import Tacotron2
-from layers import TacotronSTFT, STFT
+# from model import Tacotron2
+# from layers import TacotronSTFT, STFT
 from audio_processing import griffin_lim
-# from train import load_model
 from text import text_to_sequence
 
 # import sys
-# sys.path.append('waveglow/')
+# sys.path.append('waveglow')
 # from denoiser import Denoiser
 
 
@@ -28,15 +27,7 @@ def plot_data(data, figsize=(16, 4)):
 
 def save_audio(path, sampling_rate, audio):
     print("saving audio to", path)
-    write(audio_path, sampling_rate, audio.astype(np.float32))
-
-
-def load_tacotron2(path, hparams):
-    model = load_model(hparams)
-    model.load_state_dict(torch.load(path)['state_dict'])
-    model.cuda().eval().half()
-
-    return model
+    write(path, sampling_rate, audio.astype(np.float32))
 
 
 def load_waveglow(path):
@@ -49,14 +40,13 @@ def load_waveglow(path):
     return waveglow, denoiser
 
 
-def infer(tacotron2_path, waveglow_path, text, audio_path):
+def infer(tacotron2, waveglow_path, text, audio_path):
     hparams = create_hparams()
     hparams.max_wav_value=32768.0
     hparams.sampling_rate = 22050
     hparams.filter_length=1024
     hparams.hop_length=256
     hparams.win_length=1024
-    tacotron2 = load_tacotron2(tacotron2_path, hparams)
     waveglow, denoiser = load_waveglow(waveglow_path)
 
     sequence = np.array(text_to_sequence(text, ['german_cleaners']))[None, :]
