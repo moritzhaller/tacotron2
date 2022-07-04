@@ -12,9 +12,9 @@ from hparams import create_hparams
 from audio_processing import griffin_lim
 from text import text_to_sequence
 
-# import sys
-# sys.path.append('waveglow')
-# from denoiser import Denoiser
+import sys
+sys.path.append('waveglow')
+from denoiser import Denoiser
 
 
 def plot_data(data, figsize=(16, 4)):
