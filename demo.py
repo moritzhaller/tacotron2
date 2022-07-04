@@ -49,7 +49,7 @@ def load_waveglow(path):
     return waveglow, denoiser
 
 
-def infer(tacotron2_path, waveglow_path, save=False):
+def infer(tacotron2_path, waveglow_path, text, save=False):
     hparams = create_hparams()
     hparams.max_wav_value=32768.0
     hparams.sampling_rate = 22050
@@ -58,8 +58,6 @@ def infer(tacotron2_path, waveglow_path, save=False):
     hparams.win_length=1024
     tacotron2 = load_tacotron2(tacotron2_path, hparams)
     waveglow, denoiser = load_waveglow(waveglow_path)
-
-    text = "Natürlich messe ich dem Lesen eine sehr, sehr große Bedeutung bei!"
 
     sequence = np.array(text_to_sequence(text, ['german_cleaners']))[None, :]
     sequence = torch.autograd.Variable(
