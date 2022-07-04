@@ -287,6 +287,8 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                         save_checkpoint(model, optimizer, learning_rate,
                                         iteration, checkpoint_path)
 
+                    demo()
+
             iteration += 1
 
         scheduler.step()
