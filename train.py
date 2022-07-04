@@ -289,11 +289,14 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                                         iteration, checkpoint_path)
 
                     tacotraon2_path = checkpoint_path
-                    waveglow_path = 'waveglow_checkpoints/waveglow_256channels_ljs_v3.pt'
-                    audio_dir = 'demos_dir'
+                    waveglow_path = '/content/drive/MyDrive/waveglow_checkpoints/waveglow_256channels_ljs_v3.pt'
+                    audio_dir = '/content/drive/MyDrive/demos'
                     audio_path = os.path.join(audio_dir, "{}.wav".format(iteration))
                     text = "Natürlich messe ich dem Lesen eine sehr, sehr große Bedeutung bei!"
-                    _ = infer(model, waveglow_path, text, audio_path)
+                    try:
+                        _ = infer(model, waveglow_path, text, audio_path)
+                    except Exception as e:
+                        print("Inference failed ", e)
 
             iteration += 1
 
