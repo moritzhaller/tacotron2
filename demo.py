@@ -27,7 +27,7 @@ def plot_data(data, figsize=(16, 4)):
 
 def save_audio(path, sampling_rate, audio):
     print("saving audio to", path)
-    write(path, sampling_rate, audio.astype(np.float32))
+    write(path, sampling_rate, audio.T.astype(np.float32))
 
 
 def load_waveglow(path):
@@ -63,7 +63,7 @@ def infer(tacotron2, waveglow_path, text, audio_path):
     # denoise
     audio_denoised = denoiser(audio, strength=0.006)[:, 0]
     
-    audio_denoised_np = audio_denoised.cpu().numpy()    
+    audio_denoised_np = audio_denoised.cpu().numpy()
     
     if audio_path:
         save_audio(audio_path, hparams.sampling_rate, audio_denoised_np)
