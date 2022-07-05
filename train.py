@@ -193,7 +193,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     model = load_model(hparams)
     learning_rate = hparams.learning_rate
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=hparams.gamma)
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=hparams.gamma)
 
     if hparams.fp16_run:
         from apex import amp
@@ -237,10 +237,10 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
 
-            learning_rate = optimizer.param_groups[0]['lr']
+            # learning_rate = optimizer.param_groups[0]['lr']
             # learning_rate = scheduler.get_last_lr()
-            # for param_group in optimizer.param_groups:
-            #     param_group['lr'] = learning_rate
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = learning_rate
 
             model.zero_grad()
             x, y = model.parse_batch(batch)
@@ -288,7 +288,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                         save_checkpoint(model, optimizer, learning_rate,
                                         iteration, checkpoint_path)
 
-                    tacotraon2_path = checkpoint_path
+                    # tacotraon2_path = checkpoint_path
                     waveglow_path = '/content/drive/MyDrive/waveglow_checkpoints/waveglow_256channels_ljs_v3.pt'
                     audio_dir = '/content/drive/MyDrive/demos'
                     audio_path = os.path.join(audio_dir, "{}.wav".format(iteration))
@@ -300,7 +300,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             iteration += 1
 
-        scheduler.step()
+        # scheduler.step()
 
 
 if __name__ == '__main__':
