@@ -82,7 +82,7 @@ def create_hparams(hparams_string=None, verbose=False):
         weight_decay=1e-6,
         gamma=0.995,
         grad_clip_thresh=1.0,
-        batch_size=42,
+        batch_size=40,
         mask_padding=True  # set model's padded outputs to padded values
     )
 
