@@ -111,9 +111,21 @@ def load_checkpoint(checkpoint_path, model, optimizer):
 
 
 def load_amp_checkpoint(checkpoint_path, model, optimizer, amp):
+    # assert os.path.isfile(checkpoint_path)
+    # print("Loading amp checkpoint '{}'".format(checkpoint_path))
+    # checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    # model.load_state_dict(checkpoint_dict['state_dict'])
+    # optimizer.load_state_dict(checkpoint_dict['optimizer'])
+    # amp.load_state_dict(checkpoint_dict['amp'])
+    # learning_rate = checkpoint_dict['learning_rate']
+    # iteration = checkpoint_dict['iteration']
+    # print("Loaded amp checkpoint '{}' from iteration {}" .format(
+    #     checkpoint_path, iteration))
+    # return model, optimizer, amp, learning_rate, iteration
     assert os.path.isfile(checkpoint_path)
     print("Loading amp checkpoint '{}'".format(checkpoint_path))
-    checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    checkpoint_dict = torch.load(checkpoint_path)
+    model, optimizer = amp.initialize(model, optimizer, opt_level='O2')
     model.load_state_dict(checkpoint_dict['state_dict'])
     optimizer.load_state_dict(checkpoint_dict['optimizer'])
     amp.load_state_dict(checkpoint_dict['amp'])
@@ -220,6 +232,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 checkpoint_path, model, hparams.ignore_layers)
         else:
             if hparams.fp16_run:
+                print('amp', amp)
                 model, optimizer, amp,  _learning_rate, iteration = load_amp_checkpoint(
                     checkpoint_path, model, optimizer, amp)
             else:
