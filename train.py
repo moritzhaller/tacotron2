@@ -221,8 +221,18 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 checkpoint_path, model, hparams.ignore_layers)
         else:
             if hparams.fp16_run:
-                model, optimizer, amp,  _learning_rate, iteration = load_amp_checkpoint(
-                    checkpoint_path, model, optimizer, amp)
+                did_init_amp = False
+                print("Loading amp checkpoint '{}'".format(checkpoint_path))
+                checkpoint_dict = torch.load(checkpoint_path)
+                model.load_state_dict(checkpoint_dict['state_dict'])
+                optimizer.load_state_dict(checkpoint_dict['optimizer'])
+                amp.load_state_dict(checkpoint_dict['amp'])
+                learning_rate = checkpoint_dict['learning_rate']
+                iteration = checkpoint_dict['iteration']
+                print("Loaded amp checkpoint '{}' from iteration {}" .format(checkpoint_path, iteration))
+                # model, optimizer, amp,  _learning_rate, iteration = load_amp_checkpoint(
+                #     checkpoint_path, model, optimizer, amp)
+
             else:
                 model, optimizer, _learning_rate, iteration = load_checkpoint(
                     checkpoint_path, model, optimizer)
@@ -266,6 +276,13 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
             else:
                 grad_norm = torch.nn.utils.clip_grad_norm_(
                     model.parameters(), hparams.grad_clip_thresh)
+
+            # https://github.com/NVIDIA/apex/issues/480#issuecomment-698696982
+            if hparams.fp16_run and checkpoint_path is not None and not did_init_amp:
+                with amp.scale_loss(loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
+                optimizer.load_state_dict(checkpoint_dict['optimizer'])
+                did_init_amp = True
 
             optimizer.step()
 
