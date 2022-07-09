@@ -124,7 +124,7 @@ def load_amp_checkpoint(checkpoint_path, model, optimizer, amp):
     # return model, optimizer, amp, learning_rate, iteration
     assert os.path.isfile(checkpoint_path)
     print("Loading amp checkpoint '{}'".format(checkpoint_path))
-    checkpoint_dict = torch.load(checkpoint_path)
+    checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
     model, optimizer = amp.initialize(model, optimizer, opt_level='O2')
     model.load_state_dict(checkpoint_dict['state_dict'])
     optimizer.load_state_dict(checkpoint_dict['optimizer'])
