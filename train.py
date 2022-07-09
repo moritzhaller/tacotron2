@@ -85,7 +85,8 @@ def load_model(hparams):
 def warm_start_model(checkpoint_path, model, ignore_layers):
     assert os.path.isfile(checkpoint_path)
     print("Warm starting model from checkpoint '{}'".format(checkpoint_path))
-    checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    # checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    checkpoint_dict = torch.load(checkpoint_path)
     model_dict = checkpoint_dict['state_dict']
     if len(ignore_layers) > 0:
         model_dict = {k: v for k, v in model_dict.items()
