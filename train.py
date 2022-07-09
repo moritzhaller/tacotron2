@@ -279,8 +279,6 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             # https://github.com/NVIDIA/apex/issues/480#issuecomment-698696982
             if hparams.fp16_run and checkpoint_path is not None and not did_init_amp:
-                with amp.scale_loss(loss, optimizer) as scaled_loss:
-                    scaled_loss.backward()
                 optimizer.load_state_dict(checkpoint_dict['optimizer'])
                 did_init_amp = True
 
