@@ -104,7 +104,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
     checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
     model.load_state_dict(checkpoint_dict['state_dict'])
     optimizer.load_state_dict(checkpoint_dict['optimizer'])
-    # learning_rate = checkpoint_dict['learning_rate']
+    learning_rate = checkpoint_dict['learning_rate']
     iteration = checkpoint_dict['iteration']
     print("Loaded checkpoint '{}' from iteration {}" .format(
         checkpoint_path, iteration))
@@ -227,7 +227,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 model.load_state_dict(checkpoint_dict['state_dict'])
                 optimizer.load_state_dict(checkpoint_dict['optimizer'])
                 amp.load_state_dict(checkpoint_dict['amp'])
-                learning_rate = checkpoint_dict['learning_rate']
+                # learning_rate = checkpoint_dict['learning_rate']
                 iteration = checkpoint_dict['iteration']
                 print("Loaded amp checkpoint '{}' from iteration {}" .format(checkpoint_path, iteration))
                 # model, optimizer, amp,  _learning_rate, iteration = load_amp_checkpoint(
