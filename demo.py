@@ -40,7 +40,7 @@ def load_waveglow(path):
     return waveglow, denoiser
 
 
-def infer(tacotron2, waveglow_path, text, audio_path):
+def infer(tacotron2, waveglow_path, text, audio_path, denoiser_strength=0.006):
     hparams = create_hparams()
     hparams.max_wav_value=32768.0
     hparams.sampling_rate = 22050
@@ -61,7 +61,7 @@ def infer(tacotron2, waveglow_path, text, audio_path):
         audio = waveglow.infer(mel_outputs_postnet, sigma=0.85)
 
     # denoise
-    audio_denoised = denoiser(audio, strength=0.006)[:, 0]
+    audio_denoised = denoiser(audio, strength=denoiser_strength)[:, 0]
     
     audio_denoised_np = audio_denoised.cpu().numpy()
     
