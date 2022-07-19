@@ -85,7 +85,6 @@ def load_model(hparams):
 def warm_start_model(checkpoint_path, model, ignore_layers):
     assert os.path.isfile(checkpoint_path)
     print("Warm starting model from checkpoint '{}'".format(checkpoint_path))
-    # checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
     checkpoint_dict = torch.load(checkpoint_path)
     model_dict = checkpoint_dict['state_dict']
     if len(ignore_layers) > 0:
@@ -279,7 +278,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                     model.parameters(), hparams.grad_clip_thresh)
 
             # https://github.com/NVIDIA/apex/issues/480#issuecomment-698696982
-            if hparams.fp16_run and checkpoint_path is not None and not did_init_amp:
+            if hparams.fp16_run and checkpoint_path is not None and not did_init_amp and not warm_start:
                 optimizer.load_state_dict(checkpoint_dict['optimizer'])
                 did_init_amp = True
 
