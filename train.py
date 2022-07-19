@@ -217,6 +217,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     epoch_offset = 0
     if checkpoint_path is not None:
         if warm_start:
+            did_init_amp = False
             model = warm_start_model(
                 checkpoint_path, model, hparams.ignore_layers)
         else:
