@@ -26,4 +26,4 @@ chars = [
     'ö', 'ü'
 ]
 
-symbols = chars + _arpabet
+symbols = chars
